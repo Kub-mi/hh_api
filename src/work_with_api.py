@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict
+from http.client import responses
+from typing import List, Dict, Optional
 
 import requests
 
@@ -29,6 +30,7 @@ class HeadHunterAPI(JobAPI):
 
     def __init__(self):
         self.__per_page = 20
+
 
     def __connect(self, keyword: str) -> requests.Response:
         """
@@ -60,3 +62,94 @@ class HeadHunterAPI(JobAPI):
 
         # Возвращаем список вакансий из ответа
         return data.get("items", [])
+
+hh_api = HeadHunterAPI()
+
+
+class Vacancy:
+    """
+    Класс, представляющий вакансию, полученную с hh.ru.
+    Поддерживает сравнение по зарплате и валидацию полей
+    """
+
+    __slots__ = ("title", "url", "salary", "description")
+
+    def __init__(self, title: str, url: str, salary: Optional[int], description: str):
+        """
+        Инициализация экземпляра вакансии.
+
+        :param title: Название вакансии
+        :param url: Ссылка на вакансию
+        :param salary: Зарплата в рублях (int) или None
+        :param description: Краткое описание или требования
+        """
+        self.title = title
+        self.url = url
+        self.salary = self._validate_salary(salary)
+        self.description = description
+
+    def _validate_salary(self, salary: Optional[int]) -> int:
+        """
+        Приватный метод для валидации зарплаты.
+        Если зарплата не указана, устанавливает значение 0.
+
+        :param salary: Зарплата в рублях (int) или None
+        :return: Целочисленное значение зарплаты
+        """
+        if isinstance(salary, int) and salary >= 0:
+            return salary
+        return 0  # зарплата не указана или некорректная
+
+    # Методы сравнения вакансий по зарплате
+    def __lt__(self, other) -> bool:
+        return self.salary < other.salary
+
+    def __le__(self, other) -> bool:
+        return self.salary <= other.salary
+
+    def __gt__(self, other) -> bool:
+        return self.salary > other.salary
+
+    def __ge__(self, other) -> bool:
+        return self.salary >= other.salary
+
+    def __eq__(self, other) -> bool:
+        return self.salary == other.salary
+
+    def __str__(self) -> str:
+        """
+        Возвращает строковое представление вакансии.
+        """
+        return f"{self.title} | {self.salary} руб. | {self.url}"
+
+    def __repr__(self) -> str:
+        return f"Vacancy({self.title!r}, {self.url!r}, {self.salary!r}, {self.description!r})"
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Vacancy":
+        """
+        Создает объект Vacancy из словаря.
+
+        :param data: Словарь с данными вакансии
+        :return: Экземпляр Vacancy
+        """
+        return cls(
+            title=data.get("name", "Без названия"),
+            url=data.get("alternate_url", ""),
+            salary=cls._parse_salary(data.get("salary")),
+            description=data.get("snippet", {}).get("requirement", "Описание не указано")
+        )
+
+    @staticmethod
+    def _parse_salary(salary_data: Optional[dict]) -> Optional[int]:
+        """
+        Парсит зарплату из словаря. Использует "from" как основную оценку.
+
+        :param salary_data: Словарь с зарплатой (или None)
+        :return: Зарплата как число или None
+        """
+        if salary_data and isinstance(salary_data, dict):
+            salary_from = salary_data.get("from")
+            if isinstance(salary_from, int):
+                return salary_from
+        return None
