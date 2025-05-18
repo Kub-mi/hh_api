@@ -28,8 +28,9 @@ class HeadHunterAPI(JobAPI):
     """
     BASE_URL = "https://api.hh.ru/vacancies"
 
-    def __init__(self):
-        self.__per_page = 20
+    def __init__(self, area: int = 113, per_page: int = 20):
+        self.__area = area
+        self.__per_page = per_page
 
 
     def __connect(self, keyword: str) -> requests.Response:
@@ -42,7 +43,7 @@ class HeadHunterAPI(JobAPI):
         """
         params = {
             "text": keyword,
-            "area": 113,  # Код России
+            "area": self.__area,  # Код России
             "per_page": self.__per_page
         }
         response = requests.get(self.BASE_URL, params=params)
@@ -63,8 +64,6 @@ class HeadHunterAPI(JobAPI):
         # Возвращаем список вакансий из ответа
         return data.get("items", [])
 
-hh_api = HeadHunterAPI()
-
 
 class Vacancy:
     """
@@ -77,11 +76,6 @@ class Vacancy:
     def __init__(self, title: str, url: str, salary: Optional[int], description: str):
         """
         Инициализация экземпляра вакансии.
-
-        :param title: Название вакансии
-        :param url: Ссылка на вакансию
-        :param salary: Зарплата в рублях (int) или None
-        :param description: Краткое описание или требования
         """
         self.title = title
         self.url = url

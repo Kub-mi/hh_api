@@ -24,7 +24,7 @@ class VacancyStorage(ABC):
 class JSONVacancyStorage(VacancyStorage):
     """Реализация хранилища на базе JSON-файла"""
 
-    def __init__(self, filename: str = "vacancies.json"):
+    def __init__(self, filename: str = "data/vacancies.json"):
         self.filename = filename
 
     def _read_file(self) -> List[dict]:
