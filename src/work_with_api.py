@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from http.client import responses
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
 import requests
 
@@ -26,12 +25,12 @@ class HeadHunterAPI(JobAPI):
     Класс для подключения и получения вакансий с сайта hh.ru.
     Наследуется от абстрактного класса JobAPI.
     """
+
     BASE_URL = "https://api.hh.ru/vacancies"
 
     def __init__(self, area: int = 113, per_page: int = 20):
         self.__area = area
         self.__per_page = per_page
-
 
     def __connect(self, keyword: str) -> requests.Response:
         """
@@ -44,7 +43,7 @@ class HeadHunterAPI(JobAPI):
         params = {
             "text": keyword,
             "area": self.__area,  # Код России
-            "per_page": self.__per_page
+            "per_page": self.__per_page,
         }
         response = requests.get(self.BASE_URL, params=params)
         if response.status_code != 200:
@@ -131,7 +130,9 @@ class Vacancy:
             title=data.get("name", "Без названия"),
             url=data.get("alternate_url", ""),
             salary=cls._parse_salary(data.get("salary")),
-            description=data.get("snippet", {}).get("requirement", "Описание не указано")
+            description=data.get("snippet", {}).get(
+                "requirement", "Описание не указано"
+            ),
         )
 
     @staticmethod

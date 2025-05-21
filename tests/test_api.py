@@ -1,6 +1,6 @@
 import os
-import pytest
 
+import pytest
 
 from src.work_with_api import HeadHunterAPI, Vacancy
 from src.work_with_vacancies import JSONVacancyStorage
@@ -52,7 +52,7 @@ def test_from_dict_parsing():
         "name": "Backend Developer",
         "alternate_url": "https://hh.ru/vacancy/777",
         "salary": {"from": 150000},
-        "snippet": {"requirement": "3+ года опыта"}
+        "snippet": {"requirement": "3+ года опыта"},
     }
     vac = Vacancy.from_dict(raw_data)
     assert vac.title == "Backend Developer"

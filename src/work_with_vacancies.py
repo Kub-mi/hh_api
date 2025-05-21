@@ -1,6 +1,6 @@
 import json
 from abc import ABC, abstractmethod
-from typing import Optional, List
+from typing import List, Optional
 
 from src.work_with_api import Vacancy
 
@@ -13,7 +13,9 @@ class VacancyStorage(ABC):
         pass
 
     @abstractmethod
-    def get_vacancies_by_criteria(self, min_salary: Optional[int] = None) -> List[Vacancy]:
+    def get_vacancies_by_criteria(
+        self, min_salary: Optional[int] = None
+    ) -> List[Vacancy]:
         pass
 
     @abstractmethod
@@ -40,15 +42,19 @@ class JSONVacancyStorage(VacancyStorage):
 
     def add_vacancy(self, vacancy: Vacancy) -> None:
         data = self._read_file()
-        data.append({
-            "title": vacancy.title,
-            "url": vacancy.url,
-            "salary": vacancy.salary,
-            "description": vacancy.description
-        })
+        data.append(
+            {
+                "title": vacancy.title,
+                "url": vacancy.url,
+                "salary": vacancy.salary,
+                "description": vacancy.description,
+            }
+        )
         self._write_file(data)
 
-    def get_vacancies_by_criteria(self, min_salary: Optional[int] = None) -> List[Vacancy]:
+    def get_vacancies_by_criteria(
+        self, min_salary: Optional[int] = None
+    ) -> List[Vacancy]:
         data = self._read_file()
         result = []
         for item in data:
@@ -59,7 +65,8 @@ class JSONVacancyStorage(VacancyStorage):
     def delete_vacancy(self, vacancy: Vacancy) -> None:
         data = self._read_file()
         data = [
-            item for item in data
+            item
+            for item in data
             if not (item["title"] == vacancy.title and item["url"] == vacancy.url)
         ]
         self._write_file(data)

@@ -1,4 +1,5 @@
 import os
+
 import pytest
 
 from src.work_with_api import Vacancy
@@ -32,7 +33,6 @@ def test_filtering_by_salary(storage):
     results = storage.get_vacancies_by_criteria(min_salary=100000)
     titles = [v.title for v in results]
     assert "Middle" in titles and "Senior" in titles and "Junior" not in titles
-
 
 
 def test_deletion(storage):
